@@ -4,7 +4,7 @@ from odoo.addons.website_slides.controllers.main import WebsiteSlides
 
 class WebsiteSlidesAccessControl(WebsiteSlides):
 
-    @http.route(['/slides/course/<model("slide.channel"):channel>'], type='http', auth="user", website=True)
+    @http.route(['/slides/slide/<model("slide.slide"):slide>'], type='http', auth="user", website=True)
     def channel(self, channel, **kwargs):
         user = request.env.user
         partner = user.partner_id
