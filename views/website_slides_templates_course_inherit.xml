@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+  <data>
+    <template id="course_main_subscription_warning" inherit_id="website_slides.course_main" name="Course Main Subscription Warning">
+        <xpath expr="//div[@id='courseMainTabContent']" position="before">
+            <t t-if="show_subscription_warning">
+                <div class="container mt-3">
+                    <div class="alert alert-warning text-center" role="alert">
+                        <strong>Kursus berbayar!</strong> Anda perlu berlangganan untuk mengakses seluruh materi.
+                    </div>
+                </div>
+            </t>
+        </xpath>
+    </template>
+  </data>
+</odoo>
