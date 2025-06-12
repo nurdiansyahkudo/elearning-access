@@ -27,10 +27,7 @@ class WebsiteSlidesAccessControl(WebsiteSlides):
             ], limit=1)
 
             if not subscription:
-                values = self._get_slide_detail(slide)
                 values['show_subscription_warning'] = True
-                values['channel'] = slide.channel_id
-                return request.render("website_slides.slides_main", values)
 
         # Jika slide adalah kategori, redirect ke halaman channel
         if slide.is_category:
