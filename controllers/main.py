@@ -1,6 +1,8 @@
 from odoo import http
 from odoo.http import request
 from odoo.addons.website_slides.controllers.main import WebsiteSlides
+from odoo.exceptions import ValidationError
+
 import werkzeug
 
 class WebsiteSlidesAccessControl(WebsiteSlides):
@@ -15,11 +17,10 @@ class WebsiteSlidesAccessControl(WebsiteSlides):
         if not slide.channel_id.can_access_from_current_website() or not slide.active:
             raise werkzeug.exceptions.NotFound()
 
-        # Awal inisialisasi values
-        values = self._get_slide_detail(slide)
-
         # CEK SUBSCRIPTION
+        # Hanya jika channel punya product_id dan diset sebagai berlangganan
         if slide.channel_id.product_id and slide.channel_id.product_id.recurring_invoice:
+            # Cek apakah user punya subscription aktif
             subscription = request.env['sale.order'].sudo().search([
                 ('partner_id', '=', partner.id),
                 ('order_line.product_id', '=', slide.channel_id.product_id.id),
@@ -27,20 +28,22 @@ class WebsiteSlidesAccessControl(WebsiteSlides):
             ], limit=1)
 
             if not subscription:
-                values['show_subscription_warning'] = True
+                return request.render("website_slides.slide_main")
 
         # Jika slide adalah kategori, redirect ke halaman channel
         if slide.is_category:
-            return request.redirect(slide.channel_id.website_url)
+            raise ValidationError("You need an active subscription to access this slide.")
 
+        # Lanjutkan proses default
         if slide.can_self_mark_completed and not slide.user_has_completed \
-        and slide.channel_id.channel_type == 'training' and slide.slide_category != 'video':
+           and slide.channel_id.channel_type == 'training' and slide.slide_category != 'video':
             self._slide_mark_completed(slide)
             next_category_to_open = slide._get_next_category()
         else:
             self._set_viewed_slide(slide)
             next_category_to_open = False
 
+        values = self._get_slide_detail(slide)
         if slide.question_ids:
             values.update(self._get_slide_quiz_data(slide))
         values['channel_progress'] = self._get_channel_progress(slide.channel_id, include_quiz=True)
