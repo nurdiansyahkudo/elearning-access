@@ -21,7 +21,7 @@ class WebsiteSlidesAccessControl(WebsiteSlides):
             # Cek apakah user punya subscription aktif
             subscription = request.env['sale.order'].sudo().search([
                 ('partner_id', '=', partner.id),
-                ('recurring_invoice_line_ids.product_id', '=', slide.channel_id.product_id.id),
+                ('order_line.product_id', '=', slide.channel_id.product_id.id),
                 ('subscription_state', '=', '3_progress')
             ], limit=1)
 
