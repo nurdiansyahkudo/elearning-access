@@ -8,37 +8,14 @@ class WebsiteSlidesAccessControl(WebsiteSlides):
     @http.route('/slides/slide/<model("slide.slide"):slide>', type='http', auth="public",
                 website=True, sitemap=True)
     def slide_view(self, slide, **kwargs):
-        # show_subscription_warning = False
-        user = request.env.user
-        partner = user.partner_id
-
-        # Jika slide tidak aktif atau tidak bisa diakses dari website sekarang
         if not slide.channel_id.can_access_from_current_website() or not slide.active:
             raise werkzeug.exceptions.NotFound()
 
-        # CEK SUBSCRIPTION
-        # Hanya jika channel punya product_id dan diset sebagai berlangganan
-        if slide.channel_id.product_id and slide.channel_id.product_id.recurring_invoice:
-            # Cek apakah user punya subscription aktif
-            subscription = request.env['sale.order'].sudo().search([
-                ('partner_id', '=', partner.id),
-                ('order_line.product_id', '=', slide.channel_id.product_id.id),
-                ('subscription_state', '=', '3_progress')
-            ], limit=1)
-
-            if not subscription:
-                values = self._get_slide_detail(slide)
-                values['show_subscription_warning'] = True
-                values['channel'] = slide.channel_id  # ⬅️ Fix di sini
-                return request.render("website_slides.course_main", values)
-
-        # 🔄 Jika slide adalah kategori, redirect ke halaman channel
         if slide.is_category:
             return request.redirect(slide.channel_id.website_url)
 
-        # ⬇️ Lanjutkan proses default
         if slide.can_self_mark_completed and not slide.user_has_completed \
-           and slide.channel_id.channel_type == 'training' and slide.slide_category != 'video':
+        and slide.channel_id.channel_type == 'training' and slide.slide_category != 'video':
             self._slide_mark_completed(slide)
             next_category_to_open = slide._get_next_category()
         else:
@@ -46,8 +23,26 @@ class WebsiteSlidesAccessControl(WebsiteSlides):
             next_category_to_open = False
 
         values = self._get_slide_detail(slide)
+
+        # ✳️ CEK SUBSCRIPTION
+        show_subscription_warning = False
+        user = request.env.user
+        partner = user.partner_id
+        if slide.channel_id.product_id and slide.channel_id.product_id.recurring_invoice:
+            subscription = request.env['sale.order'].sudo().search([
+                ('partner_id', '=', partner.id),
+                ('order_line.product_id', '=', slide.channel_id.product_id.id),
+                ('subscription_state', '=', '3_progress')
+            ], limit=1)
+            if not subscription:
+                show_subscription_warning = True
+        values['show_subscription_warning'] = show_subscription_warning
+
+        # quiz-specific
         if slide.question_ids:
             values.update(self._get_slide_quiz_data(slide))
+
+        # sidebar
         values['channel_progress'] = self._get_channel_progress(slide.channel_id, include_quiz=True)
         values['category_data'] = self._prepare_collapsed_categories(values['category_data'], slide, next_category_to_open)
 
@@ -69,3 +64,4 @@ class WebsiteSlidesAccessControl(WebsiteSlides):
 
         values.pop('channel', None)
         return request.render("website_slides.slide_main", values)
+
