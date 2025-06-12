@@ -1,8 +1,6 @@
 from odoo import http
 from odoo.http import request
 from odoo.addons.website_slides.controllers.main import WebsiteSlides
-from odoo.exceptions import ValidationError
-
 import werkzeug
 
 class WebsiteSlidesAccessControl(WebsiteSlides):
@@ -28,11 +26,11 @@ class WebsiteSlidesAccessControl(WebsiteSlides):
             ], limit=1)
 
             if not subscription:
-                return request.render("website_slides.slide_main")
+                return request.redirect('/slides')
 
         # Jika slide adalah kategori, redirect ke halaman channel
         if slide.is_category:
-            raise ValidationError("You need an active subscription to access this slide.")
+            return request.redirect(slide.channel_id.website_url)
 
         # Lanjutkan proses default
         if slide.can_self_mark_completed and not slide.user_has_completed \
