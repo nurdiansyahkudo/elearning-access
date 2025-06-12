@@ -8,6 +8,7 @@ class WebsiteSlidesAccessControl(WebsiteSlides):
     @http.route('/slides/slide/<model("slide.slide"):slide>', type='http', auth="public",
                 website=True, sitemap=True)
     def slide_view(self, slide, **kwargs):
+        show_subscription_warning = False
         user = request.env.user
         partner = user.partner_id
 
@@ -27,15 +28,12 @@ class WebsiteSlidesAccessControl(WebsiteSlides):
 
             if not subscription:
                 show_subscription_warning = True
-
-            # Ambil render default
-            response = super().slide_view(slide, **kwargs)
-
-            # Tambahkan flag ke template
-            if hasattr(response, 'qcontext'):
-                response.qcontext['show_subscription_warning'] = show_subscription_warning
-
-            return response
+                # Ambil render default
+                response = super().slide_view(slide, **kwargs)
+                # Tambahkan flag ke template
+                if hasattr(response, 'qcontext'):
+                    response.qcontext['show_subscription_warning'] = show_subscription_warning
+                return response
 
         # Jika slide adalah kategori, redirect ke halaman channel
         if slide.is_category:
