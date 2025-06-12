@@ -8,7 +8,7 @@ class WebsiteSlidesAccessControl(WebsiteSlides):
     @http.route('/slides/slide/<model("slide.slide"):slide>', type='http', auth="public",
                 website=True, sitemap=True)
     def slide_view(self, slide, **kwargs):
-        show_subscription_warning = False
+        # show_subscription_warning = False
         user = request.env.user
         partner = user.partner_id
 
@@ -27,19 +27,16 @@ class WebsiteSlidesAccessControl(WebsiteSlides):
             ], limit=1)
 
             if not subscription:
-                show_subscription_warning = True
-                # Ambil render default
-                response = super().slide_view(slide, **kwargs)
-                # Tambahkan flag ke template
-                if hasattr(response, 'qcontext'):
-                    response.qcontext['show_subscription_warning'] = show_subscription_warning
-                return response
+                # show_subscription_warning = True
+                values = self._get_slide_detail(slide)
+                values['show_subscription_warning'] = True
+                return request.render("website_slides.course_main", values)
 
-        # Jika slide adalah kategori, redirect ke halaman channel
+        # 🔄 Jika slide adalah kategori, redirect ke halaman channel
         if slide.is_category:
             return request.redirect(slide.channel_id.website_url)
 
-        # Lanjutkan proses default
+        # ⬇️ Lanjutkan proses default
         if slide.can_self_mark_completed and not slide.user_has_completed \
            and slide.channel_id.channel_type == 'training' and slide.slide_category != 'video':
             self._slide_mark_completed(slide)
