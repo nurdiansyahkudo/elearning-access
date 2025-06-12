@@ -6,7 +6,7 @@
     'summary': 'Restrict eLearning course access based on subscription status',
     'depends': ['website_slides', 'sale_subscription', 'sale'],
     'data': [
-      "views/website_slides_templates_course_inherit.xml",
+    #   "views/website_slides_templates_course_inherit.xml",
     ],
     'installable': True,
     'application': False,
