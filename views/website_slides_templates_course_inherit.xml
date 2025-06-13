@@ -1,7 +1,6 @@
 <odoo>
   <template id="slide_main_sweetalert" inherit_id="website_slides.slide_main">
-    <!-- Sisipkan setelah konten channel -->
-    <xpath expr="//div[contains(@class, 'o_wslides_channel_body')]" position="after">
+    <xpath expr="//div[@class='container o_wslides_lesson_main']" position="before">
       <t t-if="popup_message">
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
@@ -9,7 +8,7 @@
             Swal.fire({
               icon: 'warning',
               title: 'Akses Ditolak',
-              text: "<t t-esc='popup_message' />",
+              text: "<t t-esc='popup_message'/>",
               confirmButtonText: 'Oke'
             });
           });
