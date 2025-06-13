@@ -11,14 +11,11 @@ class WebsiteSlidesAccessControl(WebsiteSlides):
         user = request.env.user
         partner = user.partner_id
 
-        # Jika slide tidak aktif atau tidak bisa diakses dari website sekarang
         if not slide.channel_id.can_access_from_current_website() or not slide.active:
             raise werkzeug.exceptions.NotFound()
 
-        # CEK SUBSCRIPTION
-        # Hanya jika channel punya product_id dan diset sebagai berlangganan
         if slide.channel_id.product_id and slide.channel_id.product_id.recurring_invoice:
-            # Cek apakah user punya subscription aktif
+            # Cek user punya subscription aktif
             subscription = request.env['sale.order'].sudo().search([
                 ('partner_id', '=', partner.id),
                 ('order_line.product_id', '=', slide.channel_id.product_id.id),
@@ -28,11 +25,9 @@ class WebsiteSlidesAccessControl(WebsiteSlides):
             if not subscription:
                 return request.redirect('/slides')
 
-        # Jika slide adalah kategori, redirect ke halaman channel
         if slide.is_category:
             return request.redirect(slide.channel_id.website_url)
 
-        # Lanjutkan proses default
         if slide.can_self_mark_completed and not slide.user_has_completed \
            and slide.channel_id.channel_type == 'training' and slide.slide_category != 'video':
             self._slide_mark_completed(slide)
