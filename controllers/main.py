@@ -43,7 +43,7 @@ class WebsiteSlidesAccessControl(WebsiteSlides):
                 })
 
                 values = self._prepare_additional_channel_values(values, **kwargs)
-                return request.render("website_slides.slides_main", values)
+                return request.render("website_slides.slide_main", values)
 
         if slide.is_category:
             return request.redirect(slide.channel_id.website_url)
