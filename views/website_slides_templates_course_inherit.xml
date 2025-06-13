@@ -1,6 +1,6 @@
 <odoo>
   <template id="slide_main_sweetalert" inherit_id="website_slides.slide_main">
-    <xpath expr="//div[@class='container o_wslides_lesson_main']" position="before">
+    <xpath expr="//div[contains(@class, 'o_wslides_lesson_main')]" position="before">
       <t t-if="popup_message">
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
@@ -8,8 +8,11 @@
             Swal.fire({
               icon: 'warning',
               title: 'Akses Ditolak',
-              text: "<t t-esc='popup_message'/>",
-              confirmButtonText: 'Oke'
+              text: "<t t-raw='popup_message' />",
+              confirmButtonText: 'Kembali'
+            }).then(() => {
+              // Ganti '/slides' jika URL course_main kamu berbeda
+              window.location.href = "<t t-esc='slide.channel_id.website_url' />";
             });
           });
         </script>
