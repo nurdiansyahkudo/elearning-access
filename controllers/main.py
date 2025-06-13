@@ -39,7 +39,6 @@ class WebsiteSlidesAccessControl(WebsiteSlides):
                     'search_uncategorized': kwargs.get('search_uncategorized'),
                     'channel': slide.channel_id,
                     'signup_allowed': request.env['res.users'].sudo()._get_signup_invitation_scope() == 'b2c',
-                    'popup_message': 'Anda belum memiliki langganan aktif untuk kursus ini.',
                     'popup_message': 'Materi tidak dapat diakses, Silahkan lakukan pembayaran untuk mengakses materi di Kursus ini',
                 })
 
