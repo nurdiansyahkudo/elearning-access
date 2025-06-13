@@ -1,10 +1,9 @@
 <odoo>
   <template id="slide_main_sweetalert" inherit_id="website_slides.slide_main">
-    <xpath expr="//body" position="inside">
-      <!-- Load SweetAlert from CDN -->
-      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    <!-- Sisipkan setelah konten channel -->
+    <xpath expr="//div[contains(@class, 'o_wslides_channel_body')]" position="after">
       <t t-if="popup_message">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
           document.addEventListener('DOMContentLoaded', function () {
             Swal.fire({
