@@ -22,8 +22,28 @@ class WebsiteSlidesAccessControl(WebsiteSlides):
                 ('subscription_state', '=', '3_progress')
             ], limit=1)
 
+            # if not subscription:
+            #     return request.redirect('/slides')
+
             if not subscription:
-                return request.redirect('/slides')
+                values = self._get_slide_detail(slide)
+                values.update(self._get_slide_quiz_data(slide) if slide.question_ids else {})
+                values['channel_progress'] = self._get_channel_progress(slide.channel_id, include_quiz=True)
+                values['category_data'] = self._prepare_collapsed_categories(values['category_data'], slide, False)
+
+                values.update({
+                    'search_category': slide.category_id if kwargs.get('search_category') else None,
+                    'search_tag': request.env['slide.tag'].browse(int(kwargs.get('search_tag'))) if kwargs.get('search_tag') else None,
+                    'slide_categories': dict(request.env['slide.slide']._fields['slide_category']._description_selection(request.env)) if kwargs.get('search_slide_category') else None,
+                    'search_slide_category': kwargs.get('search_slide_category'),
+                    'search_uncategorized': kwargs.get('search_uncategorized'),
+                    'channel': slide.channel_id,
+                    'signup_allowed': request.env['res.users'].sudo()._get_signup_invitation_scope() == 'b2c',
+                    'popup_message': 'Anda belum memiliki langganan aktif untuk channel ini.',
+                })
+
+                values = self._prepare_additional_channel_values(values, **kwargs)
+                return request.render("website_slides.slide_main", values)
 
         if slide.is_category:
             return request.redirect(slide.channel_id.website_url)

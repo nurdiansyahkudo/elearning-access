@@ -1,16 +1,21 @@
-<?xml version='1.0' encoding='utf-8'?>
 <odoo>
-  <data>
-    <template id="course_main_subscription_warning" inherit_id="website_slides.course_main" name="Course Main Subscription Warning">
-        <xpath expr="//div[@id='courseMainTabContent']" position="before">
-            <t t-if="show_subscription_warning">
-                <div class="container mt-3">
-                    <div class="alert alert-warning text-center" role="alert">
-                        <strong>Kursus berbayar!</strong> Anda perlu berlangganan untuk mengakses seluruh materi.
-                    </div>
-                </div>
-            </t>
-        </xpath>
-    </template>
-  </data>
+  <template id="slide_main_sweetalert" inherit_id="website_slides.slide_main">
+    <xpath expr="//body" position="inside">
+      <!-- Load SweetAlert from CDN -->
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+      <t t-if="popup_message">
+        <script>
+          document.addEventListener('DOMContentLoaded', function () {
+            Swal.fire({
+              icon: 'warning',
+              title: 'Akses Ditolak',
+              text: "<t t-esc='popup_message' />",
+              confirmButtonText: 'Oke'
+            });
+          });
+        </script>
+      </t>
+    </xpath>
+  </template>
 </odoo>
