@@ -14,16 +14,12 @@ class WebsiteSlidesAccessControl(WebsiteSlides):
         if not slide.channel_id.can_access_from_current_website() or not slide.active:
             raise werkzeug.exceptions.NotFound()
 
-        if slide.channel_id.product_id and slide.channel_id.product_id.recurring_invoice:
-            # Cek user punya subscription aktif
+        if slide.channel_id.enroll == 'payment':
             subscription = request.env['sale.order'].sudo().search([
                 ('partner_id', '=', partner.id),
                 ('order_line.product_id', '=', slide.channel_id.product_id.id),
                 ('subscription_state', '=', '3_progress')
             ], limit=1)
-
-            # if not subscription:
-            #     return request.redirect('/slides')
 
             if not subscription:
                 values = self._get_slide_detail(slide)
